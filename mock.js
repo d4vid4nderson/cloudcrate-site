@@ -28,40 +28,53 @@
   function esc(t) { return String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;"); }
 
   // ---- generated artwork --------------------------------------------------------------
-  // Each style dealt out in turn from a shuffled deck, so a row is never all stripes.
+  // Album covers that look like covers: muted two-tone palettes, soft blurred colour
+  // fields, film grain over everything, and sometimes the title set small — not the
+  // stripes and dot grids they were (owner, 2026-11-10: "cheesy").
+  var MUTED = [["#1E2A44", "#C9A27E", "#E8DCC8"], ["#3B2340", "#E07A5F", "#F2CC8F"], ["#22332B", "#9CB59A", "#EDE6D6"],
+    ["#111318", "#5C6B8A", "#C7CEDB"], ["#2B1E16", "#B5653B", "#E9C9A6"], ["#0F1F2E", "#3E7C8C", "#B8D8D3"],
+    ["#2A2433", "#8E7CC3", "#E4DDF2"], ["#1A1A1A", "#A3A3A3", "#F0EEE9"], ["#3A1F24", "#C08497", "#F7E1D7"],
+    ["#152238", "#E0B354", "#F4E9CD"], ["#202A20", "#C7B377", "#EFE8D1"], ["#24161F", "#7A4E6B", "#D9B8C4"]];
   var deck = [];
-  function nextKind() { if (!deck.length) deck = shuffled([0, 1, 2, 3, 4]); return deck.pop(); }
+  function nextKind() { if (!deck.length) deck = shuffled([0, 1, 2, 3, 0, 1]); return deck.pop(); }
   var palettes = [];
-  function nextPalette() { if (!palettes.length) palettes = shuffled(PALETTES); return palettes.pop(); }
-  function cover() {
-    var p = nextPalette(), a = p[0], b = p[1], g = p[2], id = "g" + Math.floor(rand() * 1e6), kind = nextKind();
-    var defs = '<defs><linearGradient id="' + id + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="' + a + '"/><stop offset="1" stop-color="' + b + '"/></linearGradient></defs>';
-    var art;
-    if (kind === 0) { // a sun over a sea
-      var y = 40 + rand() * 20, lines = "";
-      for (var i = 0; i < 6; i++) lines += '<rect x="0" y="' + (62 + i * 6) + '" width="100" height="' + (1.2 + i * 0.5) + '" fill="' + g + '" opacity=".75"/>';
-      art = '<rect width="100" height="100" fill="url(#' + id + ')"/><circle cx="' + (30 + rand() * 40) + '" cy="' + y + '" r="' + (16 + rand() * 12) + '" fill="' + g + '" opacity=".85"/>' + lines;
-    } else if (kind === 1) { // diagonal bands
-      var bands = "";
-      for (var k = -4; k < 8; k++) bands += '<rect x="' + (k * 16) + '" y="-20" width="7" height="160" fill="' + g + '" opacity="' + (0.15 + rand() * 0.5).toFixed(2) + '" transform="rotate(' + (25 + rand() * 10) + ' 50 50)"/>';
-      art = '<rect width="100" height="100" fill="url(#' + id + ')"/>' + bands;
-    } else if (kind === 2) { // rings
-      var rings = "";
-      for (var r = 46; r > 4; r -= 7) rings += '<circle cx="50" cy="50" r="' + r + '" fill="none" stroke="' + (r % 14 ? a : g) + '" stroke-width="3.2" opacity=".9"/>';
-      art = '<rect width="100" height="100" fill="' + g + '"/>' + rings + '<circle cx="50" cy="50" r="5" fill="' + b + '"/>';
-    } else if (kind === 3) { // a grid of dots
-      var dots = "";
-      for (var x = 0; x < 6; x++) for (var yy = 0; yy < 6; yy++) dots += '<circle cx="' + (12 + x * 15.2) + '" cy="' + (12 + yy * 15.2) + '" r="' + (1.5 + rand() * 5.5).toFixed(1) + '" fill="' + (rand() > .5 ? a : b) + '"/>';
-      art = '<rect width="100" height="100" fill="' + g + '"/>' + dots;
-    } else { // soft shapes
-      art = '<rect width="100" height="100" fill="' + g + '"/><circle cx="' + (20 + rand() * 30) + '" cy="' + (20 + rand() * 30) + '" r="38" fill="' + a + '" opacity=".85"/><rect x="' + (35 + rand() * 20) + '" y="' + (40 + rand() * 20) + '" width="60" height="60" rx="8" fill="' + b + '" opacity=".8"/>';
+  function nextPalette() { if (!palettes.length) palettes = shuffled(MUTED); return palettes.pop(); }
+  var GRAIN = '<filter id="n" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 .5  0 0 0 0 .5  0 0 0 0 .5  0 0 0 .55 0"/></filter>';
+  var SOFT = '<filter id="b" x="-200%" y="-200%" width="500%" height="500%"><feGaussianBlur stdDeviation="9"/></filter>';
+  function grain() { return '<rect width="100" height="100" filter="url(#n)" opacity=".35" style="mix-blend-mode:overlay"/>'; }
+  function type(title, ink, y) {
+    return '<text x="8" y="' + y + '" font-family="Inter,Helvetica,Arial,sans-serif" font-size="5.2" font-weight="600" letter-spacing=".6" fill="' + ink + '">' + esc(title).toUpperCase() + '</text>';
+  }
+  function cover(title) {
+    var p = nextPalette(), deep = p[0], mid = p[1], light = p[2], kind = nextKind(), art;
+    var defs = "<defs>" + GRAIN + SOFT + "</defs>";
+    if (kind === 0) { // a soft colour field
+      art = '<rect width="100" height="100" fill="' + deep + '"/><g filter="url(#b)">' +
+        '<circle cx="' + (25 + rand() * 50) + '" cy="' + (25 + rand() * 30) + '" r="' + (26 + rand() * 12) + '" fill="' + mid + '" opacity=".9"/>' +
+        '<circle cx="' + (30 + rand() * 50) + '" cy="' + (55 + rand() * 30) + '" r="' + (18 + rand() * 12) + '" fill="' + light + '" opacity=".55"/></g>';
+      if (title && rand() > .45) art += type(title, light, 92);
+    } else if (kind === 1) { // dusk over a horizon
+      var h = 58 + rand() * 18, id = "s" + Math.floor(rand() * 1e6);
+      art = '<defs><linearGradient id="' + id + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + deep + '"/><stop offset="1" stop-color="' + mid + '"/></linearGradient></defs>' +
+        '<rect width="100" height="100" fill="url(#' + id + ')"/><circle cx="' + (30 + rand() * 40) + '" cy="' + (h - 4) + '" r="' + (7 + rand() * 6) + '" fill="' + light + '" opacity=".9" filter="url(#b)"/>' +
+        '<rect y="' + h + '" width="100" height="' + (100 - h) + '" fill="' + deep + '"/>';
+      if (title && rand() > .5) art += type(title, light, 12);
+    } else if (kind === 2) { // one shape on paper
+      var shape = rand() > .5
+        ? '<circle cx="50" cy="46" r="' + (18 + rand() * 8) + '" fill="' + mid + '"/>'
+        : '<rect x="' + (30 + rand() * 8) + '" y="' + (26 + rand() * 8) + '" width="' + (28 + rand() * 10) + '" height="' + (28 + rand() * 10) + '" fill="' + mid + '"/>';
+      art = '<rect width="100" height="100" fill="' + light + '"/>' + shape + (title ? type(title, deep, 90) : "");
+    } else { // type alone
+      art = '<rect width="100" height="100" fill="' + (rand() > .5 ? deep : mid) + '"/>' +
+        '<text x="8" y="58" font-family="Inter,Helvetica,Arial,sans-serif" font-size="13" font-weight="800" letter-spacing="-.6" fill="' + light + '">' + esc((title || "untitled").split(" ")[0].toLowerCase()) + '</text>' +
+        '<rect x="8" y="64" width="16" height="1.4" fill="' + light + '" opacity=".7"/>';
     }
-    return svg(defs + art);
+    return svg(defs + art + grain());
   }
 
   // A moody studio portrait: a silhouette, rim-lit in a colour, on a dark ground.
   function portrait() {
-    var p = pick(PALETTES), rim = p[rand() > .5 ? 0 : 1], ground = p[2], id = "p" + Math.floor(rand() * 1e6);
+    var p = pick(MUTED), rim = p[rand() > .5 ? 1 : 2], ground = p[0], id = "p" + Math.floor(rand() * 1e6);
     var hx = 42 + rand() * 16, tilt = (rand() - .5) * 10;
     return svg('<defs><radialGradient id="' + id + '" cx="' + (0.3 + rand() * 0.4) + '" cy=".3" r=".9"><stop offset="0" stop-color="' + rim + '" stop-opacity=".55"/><stop offset=".55" stop-color="' + ground + '"/><stop offset="1" stop-color="#050506"/></radialGradient></defs>' +
       '<rect width="100" height="100" fill="url(#' + id + ')"/>' +
@@ -70,7 +83,7 @@
   }
 
   function thumbnail() {
-    var p = pick(PALETTES), id = "t" + Math.floor(rand() * 1e6);
+    var q = pick(MUTED), p = [q[1], q[2], q[0]], id = "t" + Math.floor(rand() * 1e6);
     return "data:image/svg+xml;charset=utf-8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 90"><defs><linearGradient id="' + id + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="' + p[0] + '"/><stop offset="1" stop-color="' + p[2] + '"/></linearGradient></defs><rect width="160" height="90" fill="url(#' + id + ')"/><circle cx="' + (40 + rand() * 80) + '" cy="' + (30 + rand() * 30) + '" r="' + (14 + rand() * 18) + '" fill="' + p[1] + '" opacity=".7"/><path d="M0 90 L' + (40 + rand() * 40) + ' ' + (40 + rand() * 20) + ' L' + (90 + rand() * 30) + ' 70 L160 ' + (45 + rand() * 20) + ' L160 90Z" fill="' + p[2] + '" opacity=".8"/></svg>');
   }
 
@@ -96,7 +109,7 @@
 .m-field{flex:0 1 34cqw;height:2.9cqw;border:1px solid var(--m-line);border-radius:.7cqw;background:rgba(255,255,255,.04);display:flex;align-items:center;gap:.6cqw;padding:0 .9cqw;color:var(--m-ink3);font-size:1.1cqw}\
 .m-row .m-seg{height:2.9cqw}.m-row .m-sq{width:2.9cqw;height:2.9cqw}\
 .m-spacer{flex:1}\
-.m-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:1.7cqw 1.5cqw}\
+.m-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:1.7cqw 1.5cqw}\
 .m-tile img{width:100%;aspect-ratio:1;border-radius:1cqw;display:block;box-shadow:0 1.2cqw 2.4cqw rgba(0,0,0,.45)}\
 .m-tile b{display:block;font-size:1.12cqw;margin-top:.7cqw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\
 .m-tile small{display:block;font-size:.98cqw;color:var(--m-ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\
@@ -109,7 +122,7 @@
 .m-pr{display:flex;gap:.8cqw;margin:1.3cqw 0}\
 .m-pr .m-field{flex:1}\
 .m-label{font-size:1cqw;color:var(--m-ink2);font-weight:600;margin-bottom:.8cqw}\
-.m-pgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.2cqw 1cqw}\
+.m-pgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1.2cqw 1cqw}\
 .m-pgrid img{width:100%;aspect-ratio:1;border-radius:.9cqw;display:block;border:1px solid var(--m-line)}\
 .m-pgrid .on img{outline:.3cqw solid #B79CFF;outline-offset:-.1cqw}\
 .m-pgrid small{display:block;font-size:.9cqw;color:var(--m-ink2);margin-top:.4cqw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\
@@ -120,7 +133,7 @@
 .m-ch img.av{width:4cqw;height:4cqw;border-radius:50%}\
 .m-ch div{flex:1;min-width:0}.m-ch b{display:block;font-size:1.3cqw}.m-ch small{display:block;font-size:1.05cqw;color:var(--m-ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\
 .m-ch img.th{width:10.5cqw;aspect-ratio:16/9;border-radius:.7cqw}\
-.m-two{display:grid;grid-template-columns:1fr 1fr;gap:0 2.4cqw}\
+.m-two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 2.4cqw}\
 .mock[data-mock=watch]{aspect-ratio:16/8.4}\
 ';
   var style = document.createElement("style"); style.textContent = css; document.head.appendChild(style);
@@ -151,7 +164,7 @@
   // ---- the three windows ------------------------------------------------------------------
   function albums(el) {
     var names = shuffled(ARTISTS), titles = shuffled(ALBUMS), tiles = "";
-    for (var i = 0; i < 12; i++) tiles += '<div class="m-tile"><img alt="" src="' + cover() + '"><b>' + esc(titles[i]) + "</b><small>" + esc(names[i % 7]) + "</small></div>";
+    for (var i = 0; i < 12; i++) tiles += '<div class="m-tile"><img alt="" src="' + cover(titles[i]) + '"><b>' + esc(titles[i]) + "</b><small>" + esc(names[i % 7]) + "</small></div>";
     el.innerHTML = chrome(pageRow(true) + '<div class="m-grid">' + tiles + "</div>", "crate", "Crate", counts(7 + Math.floor(rand() * 20), 12 + Math.floor(rand() * 40)));
   }
 
