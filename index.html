@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cloud Crate</title>
+<meta name="description" content="Cloud Crate is a media player for Mac, iPhone and Apple Watch that brings YouTube and your own music together. All your clouds. One crate.">
+<meta name="theme-color" content="#050506">
+<meta property="og:title" content="Cloud Crate">
+<meta property="og:description" content="All your clouds. One crate. A media player for Mac, iPhone and Apple Watch.">
+<meta property="og:image" content="https://cloudcrate.app/assets/icon-512.png">
+<meta property="og:url" content="https://cloudcrate.app/">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ground:#050506; --ground-2:#0E0D13; --ink:#F4F3F8; --ink-2:rgba(244,243,248,.62); --ink-3:rgba(244,243,248,.38);
+  --line:rgba(255,255,255,.09); --card:rgba(255,255,255,.04);
+  --lavender:#B79CFF; --lavender-2:#C3A8FF; --blue:#5B8CFF;
+  --fill:linear-gradient(135deg,var(--lavender-2),var(--blue));
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:radial-gradient(ellipse 80% 60% at 50% 18%,#17161D 0%,var(--ground) 70%) fixed,var(--ground);
+  color:var(--ink);font:16px/1.55 Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+.wrap{max-width:1160px;margin:0 auto;padding:0 24px}
+
+/* The opening: the brand reveal, then a fade onto the page. */
+#intro{position:fixed;inset:0;z-index:50;border:0;width:100%;height:100%;background:var(--ground);
+  transition:opacity .9s cubic-bezier(.16,1,.3,1)}
+#intro.gone{opacity:0;pointer-events:none}
+#skip{position:fixed;right:20px;bottom:18px;z-index:51;background:rgba(255,255,255,.06);color:var(--ink-2);
+  border:1px solid var(--line);border-radius:8px;font:500 12px Inter,sans-serif;padding:7px 12px;cursor:pointer;transition:opacity .4s}
+#skip.gone{opacity:0;pointer-events:none}
+.rise{opacity:0;transform:translateY(14px);filter:blur(6px);
+  transition:opacity 1s cubic-bezier(.16,1,.3,1),transform 1s cubic-bezier(.16,1,.3,1),filter 1s cubic-bezier(.16,1,.3,1)}
+.shown .rise{opacity:1;transform:none;filter:none}
+.shown .rise.d1{transition-delay:.08s}.shown .rise.d2{transition-delay:.16s}.shown .rise.d3{transition-delay:.24s}.shown .rise.d4{transition-delay:.32s}
+
+/* Top bar */
+nav{position:sticky;top:0;z-index:10;backdrop-filter:saturate(1.4) blur(18px);-webkit-backdrop-filter:saturate(1.4) blur(18px);
+  background:rgba(5,5,6,.55);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;gap:12px;height:60px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-weight:700;letter-spacing:-.01em}
+.brand img{width:30px;height:30px}
+nav .links{margin-left:auto;display:flex;gap:6px}
+nav .links a{text-decoration:none;color:var(--ink-2);font-size:14px;font-weight:500;padding:7px 12px;border-radius:8px}
+nav .links a:hover{color:var(--ink);background:rgba(255,255,255,.06)}
+
+/* Hero */
+.hero{position:relative;text-align:center;padding:84px 0 40px;overflow:hidden}
+.hero .icon{width:168px;height:168px;display:block;margin:0 auto 30px;filter:drop-shadow(0 22px 60px rgba(183,156,255,.35))}
+.hero h1{font-size:clamp(40px,7vw,76px);line-height:1.02;letter-spacing:-.035em;font-weight:800;margin:0 0 18px}
+.hero h1 .grad{background:var(--fill);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p.lede{max-width:640px;margin:0 auto 28px;color:var(--ink-2);font-size:clamp(17px,2vw,20px)}
+.chips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;color:var(--ink-2)}
+.halo{position:absolute;left:50%;top:40px;width:900px;height:620px;transform:translateX(-50%);pointer-events:none;z-index:-1;
+  background:radial-gradient(closest-side,rgba(155,123,255,.28),rgba(155,123,255,.08) 55%,transparent)}
+
+/* The app, in a window */
+.shot{margin:46px auto 0;max-width:1080px;border-radius:16px;overflow:hidden;border:1px solid var(--line);
+  box-shadow:0 40px 120px rgba(0,0,0,.6),0 0 0 1px rgba(0,0,0,.4),0 0 140px rgba(155,123,255,.16);background:#0b0b0e}
+.shot img{display:block;width:100%;height:auto}
+
+/* Sections */
+section{padding:96px 0}
+.eyebrow{color:var(--lavender);font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase;margin:0 0 12px}
+h2{font-size:clamp(30px,4.2vw,46px);line-height:1.08;letter-spacing:-.03em;font-weight:800;margin:0 0 16px}
+.sub{color:var(--ink-2);font-size:18px;max-width:620px;margin:0}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:44px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px;position:relative;overflow:hidden}
+.card .glyph{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;background:var(--fill);margin-bottom:16px}
+.card .glyph svg{width:20px;height:20px;stroke:#0B0B0F;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.card h3{font-size:17px;margin:0 0 6px;letter-spacing:-.01em}
+.card p{margin:0;color:var(--ink-2);font-size:15px}
+.split{display:grid;grid-template-columns:1fr 1.25fr;gap:48px;align-items:center}
+.split .shot{margin:0}
+.list{list-style:none;padding:0;margin:24px 0 0;display:grid;gap:12px}
+.list li{display:flex;gap:12px;color:var(--ink-2)}
+.list li::before{content:"";flex:none;width:8px;height:8px;border-radius:50%;margin-top:9px;background:var(--fill);box-shadow:0 0 12px rgba(183,156,255,.7)}
+.devices{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:40px}
+.device{text-align:center;padding:30px 20px}
+.device .big{font-size:28px;font-weight:800;letter-spacing:-.02em;margin:10px 0 6px}
+.device svg{width:44px;height:44px;stroke:var(--lavender);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.closing{text-align:center}
+.closing img{width:96px;height:96px;filter:drop-shadow(0 16px 44px rgba(183,156,255,.35))}
+footer{border-top:1px solid var(--line);padding:28px 0 40px;color:var(--ink-3);font-size:13px}
+footer .wrap{display:flex;gap:16px;flex-wrap:wrap;justify-content:space-between}
+
+@media (max-width:900px){
+  .grid{grid-template-columns:1fr 1fr}
+  .split{grid-template-columns:1fr;gap:28px}
+  .devices{grid-template-columns:1fr}
+}
+@media (max-width:600px){
+  .wrap{padding:0 16px}
+  .grid{grid-template-columns:1fr}
+  nav .links a:not(:last-child){display:none}
+  section{padding:64px 0}
+  .hero{padding-top:56px}
+  .hero .icon{width:128px;height:128px}
+}
+@media (prefers-reduced-motion:reduce){
+  #intro,#skip{display:none}
+  .rise{opacity:1;transform:none;filter:none;transition:none}
+}
+</style>
+</head>
+<body>
+
+<iframe id="intro" src="intro.html" title="Cloud Crate" aria-hidden="true" tabindex="-1"></iframe>
+<button id="skip" type="button">Skip</button>
+
+<nav>
+  <div class="wrap">
+    <a class="brand" href="#top"><img src="assets/icon-512.png" alt="">Cloud Crate</a>
+    <div class="links">
+      <a href="#crate">The Crate</a>
+      <a href="#watch">Watch</a>
+      <a href="#everywhere">Everywhere</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="halo"></div>
+  <div class="wrap">
+    <img class="icon rise" src="assets/icon-512.png" alt="Cloud Crate icon">
+    <h1 class="rise d1">All your clouds.<br><span class="grad">One crate.</span></h1>
+    <p class="lede rise d2">A media player for Mac, iPhone and Apple Watch that brings YouTube and your own music together, in one place that feels like yours.</p>
+    <div class="chips rise d3"><span class="chip">macOS</span><span class="chip">iPhone</span><span class="chip">Apple Watch</span><span class="chip">CarPlay-ready</span></div>
+    <div class="shot rise d4"><img src="assets/crate-albums.jpg" alt="The Crate on the Mac: every album as glowing covers" width="1247" height="860"></div>
+  </div>
+</header>
+
+<section id="crate">
+  <div class="wrap">
+    <p class="eyebrow">The Crate</p>
+    <h2>Your music, the way a collection should look.</h2>
+    <p class="sub">Every album you keep, by artist and by album, with big artwork, real artist photos and a waveform you can scrub. It plays straight from your files.</p>
+    <div class="grid">
+      <div class="card"><div class="glyph"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></div>
+        <h3>Artists and albums</h3><p>One grid for both, the same size and glow, with a page for every artist and album.</p></div>
+      <div class="card"><div class="glyph"><svg viewBox="0 0 24 24"><path d="M3 12h2M7 8v8M11 5v14M15 9v6M19 7v10M21 12h0"/></svg></div>
+        <h3>A waveform, not a bar</h3><p>See the shape of the song as it plays, and drag anywhere on it to jump there.</p></div>
+      <div class="card"><div class="glyph"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></div>
+        <h3>Artwork that fits</h3><p>Official artist photos from Apple Music and more, or a picture of your own.</p></div>
+      <div class="card"><div class="glyph"><svg viewBox="0 0 24 24"><path d="M7 18a4 4 0 0 1-.6-7.95A6 6 0 0 1 18 8.5a4.5 4.5 0 0 1-.5 9.5Z"/></svg></div>
+        <h3>All your clouds</h3><p>Add music from iCloud Drive, Google Drive, OneDrive, Dropbox, Box, a USB disk or any folder.</p></div>
+      <div class="card"><div class="glyph"><svg viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4V5Z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg></div>
+        <h3>Play it anywhere</h3><p>Choose your speakers, AirPlay or headphones right from the player, and set its own volume.</p></div>
+      <div class="card"><div class="glyph"><svg viewBox="0 0 24 24"><path d="M5 4h14v12H8l-3 3Z"/><path d="M9 9h6M9 12h4"/></svg></div>
+        <h3>Listening on Discord</h3><p>Show the song, artist and album art on your Discord profile while you listen.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="artists" style="padding-top:0">
+  <div class="wrap split">
+    <div>
+      <p class="eyebrow">Artists</p>
+      <h2>Every artist gets a face.</h2>
+      <p class="sub">Cloud Crate finds a real photo of each artist automatically. Want a different one? Search Apple Music, YouTube Music and more, or drop in your own.</p>
+      <ul class="list">
+        <li>Official photos from Apple Music, picked by exact name</li>
+        <li>Search by any name, for joint credits and side projects</li>
+        <li>Your own artwork, kept with the app</li>
+      </ul>
+    </div>
+    <div class="shot"><img src="assets/artist-picker.jpg" alt="Choosing an artist's picture" width="1247" height="860" loading="lazy"></div>
+  </div>
+</section>
+
+<section id="watch" style="padding-top:0">
+  <div class="wrap split">
+    <div class="shot"><img src="assets/crate-artists.jpg" alt="The Crate's artists, each with a photo" width="1247" height="860" loading="lazy"></div>
+    <div>
+      <p class="eyebrow">Channels &amp; video</p>
+      <h2>The channels you follow, front and center.</h2>
+      <p class="sub">Keep your channels and saved videos beside your music. Open a channel to see its videos, its albums and artists like it, and watch in a full-window player.</p>
+      <ul class="list">
+        <li>Channels and saved videos on Home</li>
+        <li>A channel's albums, right on its page</li>
+        <li>Similar artists, one click away</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="everywhere" style="padding-top:0">
+  <div class="wrap">
+    <p class="eyebrow">Everywhere</p>
+    <h2>One crate, on every screen.</h2>
+    <p class="sub">Your library follows you privately through iCloud, so the album you added on the Mac is waiting on your iPhone.</p>
+    <div class="devices">
+      <div class="card device"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>
+        <div class="big">Mac</div><p class="sub" style="font-size:15px">The full crate, with its glass look, a waveform player and Discord.</p></div>
+      <div class="card device"><svg viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="2.5"/><path d="M11 18h2"/></svg>
+        <div class="big">iPhone</div><p class="sub" style="font-size:15px">Home, Crate and Settings, widgets, and music on the Lock Screen.</p></div>
+      <div class="card device"><svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="3"/><path d="M9 6 9.5 2h5L15 6M9 18l.5 4h5l.5-4"/></svg>
+        <div class="big">Apple Watch</div><p class="sub" style="font-size:15px">A remote on your wrist, with songs downloaded for runs without your phone.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="closing" style="padding-top:0">
+  <div class="wrap">
+    <img src="assets/icon-512.png" alt="">
+    <h2 style="margin-top:22px">All your clouds. One crate.</h2>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Cloud Crate</span>
+    <span>Mac · iPhone · Apple Watch</span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var intro = document.getElementById('intro');
+  var skip = document.getElementById('skip');
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var seen = false;
+  try { seen = sessionStorage.getItem('cc.introSeen') === '1'; } catch (e) {}
+  var done = false;
+  function finish() {
+    if (done) return; done = true;
+    intro.classList.add('gone'); skip.classList.add('gone');
+    document.body.classList.add('shown');
+    try { sessionStorage.setItem('cc.introSeen', '1'); } catch (e) {}
+    setTimeout(function () { intro.remove(); skip.remove(); }, 1000);
+  }
+  // Once per visit, and never under Reduce Motion: straight onto the page.
+  if (reduce || seen) { intro.remove(); skip.remove(); document.body.classList.add('shown'); return; }
+  addEventListener('message', function (e) { if (e.data === 'reveal-done') finish(); });
+  skip.addEventListener('click', finish);
+  addEventListener('keydown', function (e) { if (e.key === 'Escape') finish(); });
+  setTimeout(finish, 6500); // should the intro never report back
+})();
+</script>
+</body>
+</html>
